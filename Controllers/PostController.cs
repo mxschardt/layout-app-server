@@ -5,8 +5,9 @@ using Api.Models;
 
 namespace Api.Controllers
 {
-    [Route("[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
+    [Produces("application/json")]
     public class PostController : ControllerBase
     {
         private readonly ApplicationContext _context;
@@ -16,31 +17,23 @@ namespace Api.Controllers
             _context = context;
         }
 
-        // GET: api/Post
+        // GET: api/Post/
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Post>>> GetAddresses()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<Post>>> GetAll()
         {
-            if (_context.Posts == null)
-            {
-                return NotFound();
-            }
             return await _context.Posts.ToListAsync();
         }
 
         // GET: api/Post/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Post>> GetPost(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<Post>> GetOne(int id)
         {
-            if (_context.Posts == null)
-            {
-                return NotFound();
-            }
             var post = await _context.Posts.FindAsync(id);
-
             if (post == null)
-            {
                 return NotFound();
-            }
 
             return post;
         }
@@ -48,12 +41,13 @@ namespace Api.Controllers
         // PUT: api/Post/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PutPost(int id, Post post)
         {
             if (id != post.Id)
-            {
                 return BadRequest();
-            }
 
             _context.Entry(post).State = EntityState.Modified;
 
@@ -64,13 +58,8 @@ namespace Api.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!PostExists(id))
-                {
                     return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return NoContent();
@@ -79,36 +68,28 @@ namespace Api.Controllers
         // POST: api/Post
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Post>> PostPost(Post post)
         {
-            if (_context.Posts == null)
-            {
-                return Problem("Entity set 'ApplicationContext.Addresses'  is null.");
-            }
             _context.Posts.Add(post);
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetPost", new { id = post.Id }, post);
+            return CreatedAtAction(nameof(GetOne), new { id = post.Id }, post);
         }
 
         // DELETE: api/Post/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeletePost(int id)
         {
-            if (_context.Posts == null)
-            {
-                return NotFound();
-            }
             var post = await _context.Posts.FindAsync(id);
             if (post == null)
-            {
                 return NotFound();
-            }
 
             _context.Posts.Remove(post);
             await _context.SaveChangesAsync();
-
-            return NoContent();
+            return Ok(post);
         }
 
         private bool PostExists(int id)
