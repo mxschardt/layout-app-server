@@ -8,10 +8,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var connectionString = builder.Configuration.GetConnectionString("ApiContextSqlite")
-     ?? throw new InvalidOperationException("Connection string 'ApiContextSqlite' not found.");
 builder.Services.AddDbContext<ApplicationContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseInMemoryDatabase("InMemory"));
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
