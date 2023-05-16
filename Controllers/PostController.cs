@@ -23,6 +23,7 @@ namespace Api.Controllers
         public async Task<ActionResult<IEnumerable<Post>>> GetPosts(int limit = 100, int start = 0)
         {
             return await _context.Posts.Where(p => p.Id > start)
+                .OrderBy(p => p.Id)
                 .Take(limit)
                 .ToListAsync();
         }
@@ -67,7 +68,7 @@ namespace Api.Controllers
             return NoContent();
         }
 
-        // POST: api/posts/
+        // POST: api/posts/localhost
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
