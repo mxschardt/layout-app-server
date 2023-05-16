@@ -6,7 +6,7 @@ using Api.Models;
 namespace Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/users")]
     [Produces("application/json")]
     public class UserController : ControllerBase
     {
@@ -17,7 +17,7 @@ namespace Api.Controllers
             _context = context;
         }
 
-        // GET: api/User
+        // GET: api/users/
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
@@ -25,7 +25,7 @@ namespace Api.Controllers
             return await _context.Users.ToListAsync();
         }
 
-        // GET: api/User/5
+        // GET: api/users/5
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -38,7 +38,7 @@ namespace Api.Controllers
             return user;
         }
 
-        // PUT: api/User/5
+        // PUT: api/users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -66,8 +66,7 @@ namespace Api.Controllers
             return NoContent();
         }
 
-        // POST: api/User
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // POST: api/users/
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -78,7 +77,7 @@ namespace Api.Controllers
             return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
-        // DELETE: api/User/5
+        // DELETE: api/users/5
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

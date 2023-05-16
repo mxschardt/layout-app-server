@@ -6,7 +6,7 @@ using Api.Models;
 namespace Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/posts")]
     [Produces("application/json")]
     public class PostController : ControllerBase
     {
@@ -17,7 +17,7 @@ namespace Api.Controllers
             _context = context;
         }
 
-        // GET: api/Post/
+        // GET: api/posts
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<Post>>> GetPosts(int limit = 100, int start = 0)
@@ -27,7 +27,7 @@ namespace Api.Controllers
                 .ToListAsync();
         }
 
-        // GET: api/Post/5
+        // GET: api/posts/5
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -40,7 +40,7 @@ namespace Api.Controllers
             return post;
         }
 
-        // PUT: api/Post/5
+        // PUT: api/posts/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -67,8 +67,7 @@ namespace Api.Controllers
             return NoContent();
         }
 
-        // POST: api/Post
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // POST: api/posts/
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -79,7 +78,7 @@ namespace Api.Controllers
             return CreatedAtAction(nameof(GetOne), new { id = post.Id }, post);
         }
 
-        // DELETE: api/Post/5
+        // DELETE: api/posts/5
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
