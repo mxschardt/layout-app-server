@@ -20,9 +20,11 @@ namespace Api.Controllers
         // GET: api/Post/
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<Post>>> GetAll()
+        public async Task<ActionResult<IEnumerable<Post>>> GetPosts(int limit = 100, int start = 0)
         {
-            return await _context.Posts.ToListAsync();
+            return await _context.Posts.Where(p => p.Id > start)
+                .Take(limit)
+                .ToListAsync();
         }
 
         // GET: api/Post/5
