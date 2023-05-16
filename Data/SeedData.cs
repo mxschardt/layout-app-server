@@ -22,7 +22,9 @@ public static class SeedData
             {
                 new User { Name = "John Smith", UserName = "johnsmith", Email = "johndoe@example.com" },
                 new User { Name = "Anna Smith", UserName = "annasmith", Email = "janesmith@example.com" },
-                new User { Name = "Bob Johnson", UserName = "bobdylon", Email = "bobjohnson@example.com" }
+                new User { Name = "Bob Johnson", UserName = "bobdylon", Email = "bobjohnson@example.com" },
+                new User { Name = "Alice Smith", UserName = "alicesmith", Email = "alicesmith@example.com" },
+                new User { Name = "John Doe", UserName = "johndoe", Email = "johndoe@example.com" },
             };
 
             context.Users.AddRange(users);
@@ -30,8 +32,8 @@ public static class SeedData
 
             foreach (var user in users)
             {
-                var posts = new Post[5];
-                for(var i = 0; i < 5; i++) 
+                var posts = new Post[20];
+                for (var i = 0; i < 20; i++)
                 {
                     var title = LoremIpsum.Generate(3, 7);
                     var body = LoremIpsum.Generate(10, 20);
