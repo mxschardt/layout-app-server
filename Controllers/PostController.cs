@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Api.Data;
 using Api.Models;
 
-namespace test_layout_api.Controllers
+namespace Api.Controllers
 {
     [Route("[controller]")]
     [ApiController]
