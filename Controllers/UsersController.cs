@@ -1,54 +1,61 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
+
 using Api.Data;
 using Api.Models;
+using Api.Dto;
 
 namespace Api.Controllers;
 
 [ApiController]
 [Route("api/users")]
 [Produces("application/json")]
-public class UserController : ControllerBase
+public class UsersController : ControllerBase
 {
     private readonly ApplicationContext _context;
+    private readonly IMapper _mapper;
 
-    public UserController(ApplicationContext context)
+    public UsersController(ApplicationContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    // GET: api/users/
+    // GET: api/users
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+    public async Task<ActionResult<IEnumerable<UserReadDto>>> GetUsers(int limit = 100, int start = 0)
     {
-        return await _context.Users.ToListAsync();
+        var users = await _context.Users.Where(u => u.Id > start)
+            .OrderBy(u => u.Id)
+            .Take(limit)
+            .ToListAsync();
+
+        return Ok(_mapper.Map<IEnumerable<UserReadDto>>(users));
     }
 
     // GET: api/users/5
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<User>> GetUser(int id)
+    public async Task<ActionResult<UserReadDto>> GetUserById(int id)
     {
         var user = await _context.Users.FindAsync(id);
         if (user == null)
             return NotFound();
 
-        return user;
+        return Ok(_mapper.Map<UserReadDto>(user));
     }
 
     // PUT: api/users/5
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> PutUser(int id, User user)
+    public async Task<IActionResult> PutUser(int id, UserCreateDto userDto)
     {
-        if (id != user.Id)
-            return BadRequest();
-
+        var user = _mapper.Map<User>(userDto);
         _context.Entry(user).State = EntityState.Modified;
 
         try
@@ -59,22 +66,24 @@ public class UserController : ControllerBase
         {
             if (!UserExists(id))
                 return NotFound();
-            else
-                throw;
+            throw;
         }
 
         return NoContent();
     }
 
-    // POST: api/users/
+    // POST: api/users
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<User>> PostUser(User user)
+    public async Task<ActionResult<User>> CreateUser(UserCreateDto userDto)
     {
+        var user = _mapper.Map<User>(userDto);
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
-        return CreatedAtAction("GetUser", new { id = user.Id }, user);
+        var userReadDto = _mapper.Map<UserReadDto>(user);
+
+        return CreatedAtAction(nameof(GetUserById), new { id = userReadDto.Id }, userReadDto);
     }
 
     // DELETE: api/users/5
@@ -89,8 +98,7 @@ public class UserController : ControllerBase
 
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
-
-        return NoContent();
+        return Ok(_mapper.Map<UserReadDto>(user));
     }
 
     private bool UserExists(int id)

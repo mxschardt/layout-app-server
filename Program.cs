@@ -11,6 +11,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationContext>(options =>
     options.UseInMemoryDatabase("InMemory"));
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
