@@ -5,6 +5,6 @@ public class Post
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Body { get; set; } = string.Empty;
-    public DateTime CreationDate { get; set; } = DateTime.Now;
+    public DateTime CreationDate { get; set; } = DateTime.Now.ToUniversalTime();
     public int UserId { get; set; }
 }
