@@ -7,15 +7,23 @@ namespace Api.Data;
 
 public static class SeedData
 {
-    public static void Initialize(IServiceProvider serviceProvider)
+    public static void Initialize(IServiceProvider serviceProvider, bool isProduction)
     {
         using (var context = new ApplicationContext(
             serviceProvider.GetRequiredService<
                 DbContextOptions<ApplicationContext>>()))
         {
-            if (context.Users.Any()) return;
+            if (isProduction)
+            {
+                // TODO: Обрабатывать ошибки и отдавать их в логер
+                context.Database.Migrate();
+            }
+            else
+            {
+                if (context.Users.Any()) return;
 
-            FillDatabase(context);
+                FillDatabase(context);
+            }
         }
     }
 

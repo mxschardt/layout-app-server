@@ -3,24 +3,37 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-builder.Services.AddDbContext<ApplicationContext>(options =>
-    options.UseInMemoryDatabase("InMemory"));
-
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+if (builder.Environment.IsProduction())
+{
+    // Загружаем строку подключения из окружения
+    var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") 
+        // Если ее нет в окружении, загружаем файл конфигурации
+        ?? builder.Configuration.GetConnectionString("PostgresqlConnection")
+        // Если строка не найдена, выбрасываем исключение
+        ?? throw new InvalidOperationException("Connection string 'PostgresqlConnection' not found.");
+
+    builder.Services.AddDbContext<ApplicationContext>(options =>
+        options.UseNpgsql(connectionString));
+}
+else
+{
+    builder.Services.AddDbContext<ApplicationContext>(options =>
+        options.UseInMemoryDatabase("InMemory"));
+}
+
 var app = builder.Build();
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    SeedData.Initialize(services);
+    SeedData.Initialize(services, app.Environment.IsProduction());
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

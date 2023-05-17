@@ -476,12 +476,5 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# EFCore Migrations
-Migrations/
-
-# Config Files
-appsettings.*
-
 # VSCore Files
-Properties/
 .vscode/
