@@ -22,12 +22,19 @@ public class PostsController : ControllerBase
         _mapper = mapper;
     }
 
-    // GET: api/posts
+    // GET: api/post
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<PostReadDto>>> GetPosts(int limit = 100, int start = 0)
+    public async Task<ActionResult<IEnumerable<PostReadDto>>> GetPosts(int? userId = null, int limit = 100, int start = 0)
     {
-        var posts = await _context.Posts.Where(p => p.Id > start)
+        var query = _context.Posts.AsQueryable();
+
+        if (userId != null)
+        {
+            query = query.Where(p => p.UserId == userId);
+        }
+
+        var posts = await query.Where(p => p.Id > start)
             .OrderBy(p => p.Id)
             .Take(limit)
             .ToListAsync();
@@ -48,14 +55,22 @@ public class PostsController : ControllerBase
         return Ok(_mapper.Map<PostReadDto>(post));
     }
 
-    // PUT: api/posts/5
-    [HttpPut("{id}")]
+    // PUT: api/posts
+    [HttpPut]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> PutPost(int id, PostCreateDto postDto)
+    public async Task<IActionResult> PutPost(PostUpdateDto updateDto)
     {
-        var post = _mapper.Map<Post>(postDto);
+        if (!PostExists(updateDto.Id))
+            return BadRequest("No such post");
+
+        // Если указан пользователь, проверяем, существует ли он
+        if (updateDto.UserId != 0 && !UserExists(updateDto.UserId))
+            return BadRequest("No such user");
+
+        var post = _mapper.Map<Post>(updateDto);
+
         _context.Entry(post).State = EntityState.Modified;
 
         try
@@ -64,7 +79,7 @@ public class PostsController : ControllerBase
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!PostExists(id))
+            if (!PostExists(updateDto.Id))
                 return NotFound();
             throw;
         }
@@ -72,12 +87,15 @@ public class PostsController : ControllerBase
         return NoContent();
     }
 
-    // POST: api/posts/localhost
+    // POST: api/posts/5
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Post>> CreatePost(PostCreateDto postDto)
     {
+        if (!UserExists(postDto.UserId))
+            return BadRequest("No such user");
+
         var post = _mapper.Map<Post>(postDto);
         _context.Posts.Add(post);
         await _context.SaveChangesAsync();
@@ -104,6 +122,11 @@ public class PostsController : ControllerBase
     private bool PostExists(int id)
     {
         return (_context.Posts?.Any(e => e.Id == id)).GetValueOrDefault();
+    }
+
+    private bool UserExists(int id)
+    {
+        return (_context.Users?.Any(e => e.Id == id)).GetValueOrDefault();
     }
 }
 

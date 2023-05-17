@@ -10,5 +10,6 @@ public class UserProfiles : Profile
     {
         CreateMap<User, UserReadDto>();
         CreateMap<UserCreateDto, User>();
+        CreateMap<UserUpdateDto, User>();
     }
 }

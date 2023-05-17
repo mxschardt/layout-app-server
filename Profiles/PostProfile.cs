@@ -10,5 +10,6 @@ public class PostProfiles : Profile
     {
         CreateMap<Post, PostReadDto>();
         CreateMap<PostCreateDto, Post>();
+        CreateMap<PostUpdateDto, Post>();
     }
 }

@@ -48,14 +48,18 @@ public class UsersController : ControllerBase
         return Ok(_mapper.Map<UserReadDto>(user));
     }
 
-    // PUT: api/users/5
-    [HttpPut("{id}")]
+    // PUT: api/users
+    [HttpPut]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> PutUser(int id, UserCreateDto userDto)
+    public async Task<IActionResult> PutUser(UserUpdateDto updateDto)
     {
-        var user = _mapper.Map<User>(userDto);
+        if (!UserExists(updateDto.Id))
+            return BadRequest("No such user");
+
+        var user = _mapper.Map<User>(updateDto);
+
         _context.Entry(user).State = EntityState.Modified;
 
         try
@@ -64,7 +68,7 @@ public class UsersController : ControllerBase
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!UserExists(id))
+            if (!UserExists(updateDto.Id))
                 return NotFound();
             throw;
         }
@@ -72,7 +76,7 @@ public class UsersController : ControllerBase
         return NoContent();
     }
 
-    // POST: api/users
+    // POST: api/users/5
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
